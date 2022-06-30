@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2003
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31229.75
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MariGold.OpenXHTML.Tests", "MariGold.OpenXHTML.Tests\MariGold.OpenXHTML.Tests.csproj", "{4B99EBDF-2880-46C4-A895-33381A222EF5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MariGold.OpenXHTML.Tests", "MariGold.OpenXHTML.Tests\MariGold.OpenXHTML.Tests.csproj", "{4B99EBDF-2880-46C4-A895-33381A222EF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MariGold.OpenXHTML", "MariGold.OpenXHTML\MariGold.OpenXHTML.csproj", "{EDEC67D7-30D5-453E-80E7-DB1218D28E98}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MariGold.OpenXHTML", "MariGold.OpenXHTML\MariGold.OpenXHTML.csproj", "{EDEC67D7-30D5-453E-80E7-DB1218D28E98}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

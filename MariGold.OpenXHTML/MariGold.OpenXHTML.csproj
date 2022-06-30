@@ -3,22 +3,25 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Title>MariGold.OpenXHTML</Title>
-    <Version>2.7.0</Version>
+    <Version>2.8.0</Version>
     <Authors>MariGold</Authors>
     <Description>A utility to convert html document to Open XML word document</Description>
     <Copyright>Copyright © MariGold 2015</Copyright>
-    <PackageProjectUrl>https://github.com/kannan-ar/MariGold.OpenXHTML</PackageProjectUrl>
+	<PackageId>MariGold.OpenXHTML.RtL</PackageId>
+    <PackageProjectUrl>https://github.com/SSgumS/MariGold.HtmlParser</PackageProjectUrl>
     <PackageTags>MariGold OpenXML HTML office</PackageTags>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<RepositoryUrl>https://github.com/SSgumS/MariGold.HtmlParser</RepositoryUrl>
     <Product>MariGold Framework</Product>
     <PackageReleaseNotes>Bug fixes on ordered and unordered list, DocumentFormat.OpenXml upgraded from 2.9.1 to 2.11.3</PackageReleaseNotes>
-    <AssemblyVersion>2.7.0.0</AssemblyVersion>
-    <FileVersion>2.7.0.0</FileVersion>
+    <AssemblyVersion>2.8.0.0</AssemblyVersion>
+    <FileVersion>2.8.0.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.11.3" />
-    <PackageReference Include="MariGold.HtmlParser" Version="1.1.1" />
+    <PackageReference Include="MariGold.HtmlParser.RtL" Version="1.2.0" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
