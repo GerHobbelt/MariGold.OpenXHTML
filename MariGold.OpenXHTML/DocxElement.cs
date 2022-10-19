@@ -2,11 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Text.RegularExpressions;
-    using DocumentFormat.OpenXml;
-    using DocumentFormat.OpenXml.Wordprocessing;
     using System.IO;
     using System.Net;
+    using System.Text.RegularExpressions;
 
     internal abstract class DocxElement
     {
@@ -61,11 +59,11 @@
             {
                 if (child.IsText && !IsEmptyText(child.InnerHtml))
                 {
-                    Run run = node.Parent.AppendChild(new Run(new Text()
+                    Run run = node.Parent.AppendChild(new Run(new[] {new Text()
                     {
                         Text = ClearHtml(child.InnerHtml),
                         Space = SpaceProcessingModeValues.Preserve
-                    }));
+                    } }));
 
                     RunCreated(node, run);
                 }
@@ -137,6 +135,8 @@
                     child.ParagraphNode = node;
                     child.Parent = node.Parent;
                     node.CopyExtentedStyles(child);
+                    node.ApplyBlockStyles(child);
+
                     ProcessChild(child, ref paragraph, properties);
                 }
             }
@@ -198,9 +198,9 @@
             Match match = Regex.Match(data, "data(\\s*):");
             value = string.Empty;
 
-            if(match.Success)
+            if (match.Success)
             {
-                value = data.Substring(match.Index + match.Length);
+                value = data[(match.Index + match.Length)..];
             }
 
             return match.Success;
@@ -208,14 +208,14 @@
 
         protected Stream GetStream(Uri uri)
         {
-            WebClient client = new WebClient() { Encoding = System.Text.Encoding.UTF8 };
+            using WebClient client = new WebClient() { Encoding = System.Text.Encoding.UTF8 };
             client.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0");
             client.UseDefaultCredentials = true;
 
             return client.OpenRead(uri);
         }
 
-        internal DocxElement(IOpenXmlContext context)
+        private protected DocxElement(IOpenXmlContext context)
         {
             this.context = context ?? throw new ArgumentNullException("context");
         }
@@ -247,7 +247,7 @@
             {
                 return true;
             }
-            else if (!string.IsNullOrEmpty(text) && 
+            else if (!string.IsNullOrEmpty(text) &&
                 node.Previous != null && !node.Previous.IsText && !node.Previous.InnerHtml.EndsWith(whiteSpace) &&
                 node.Next != null && !node.Next.IsText && !node.Next.InnerHtml.StartsWith(whiteSpace))
             {

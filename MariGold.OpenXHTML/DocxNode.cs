@@ -1,25 +1,25 @@
 ﻿namespace MariGold.OpenXHTML
 {
-    using System;
-    using MariGold.HtmlParser;
-    using System.Collections.Generic;
     using DocumentFormat.OpenXml;
+    using MariGold.HtmlParser;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     internal sealed class DocxNode
     {
         private readonly IHtmlNode node;
 
         private DocxNode paragraphNode;
-        private OpenXmlElement parent;
         private Dictionary<string, string> extentedStyles;
         private readonly Dictionary<string, string> styles;
         private readonly Dictionary<string, string> inheritedStyles;
 
         private void SetExtentedStyles(Dictionary<string, string> extentedStyles)
         {
-            this.extentedStyles = new Dictionary<string,string>();
+            this.extentedStyles = new Dictionary<string, string>();
 
-            foreach(var style in extentedStyles)
+            foreach (var style in extentedStyles)
             {
                 if (!node.Styles.ContainsKey(style.Key))
                 {
@@ -104,7 +104,7 @@
                 }
             }
         }
-       
+
         internal DocxNode ParagraphNode
         {
             get
@@ -126,24 +126,13 @@
             }
         }
 
-        internal OpenXmlElement Parent
-        {
-            get
-            {
-                return parent;
-            }
-
-            set
-            {
-                parent = value;
-            }
-        }
+        internal OpenXmlElement Parent { get; set; }
 
         internal DocxNode(IHtmlNode node)
         {
             this.node = node ?? throw new ArgumentNullException("node");
             this.styles = node.Styles;
-            this.inheritedStyles = node.InheritedStyles;
+            this.inheritedStyles = node?.InheritedStyles;
             this.extentedStyles = new Dictionary<string, string>();
         }
 
@@ -154,41 +143,30 @@
 
         internal string ExtractAttributeValue(string attributeName)
         {
-            foreach (KeyValuePair<string, string> attribute in node.Attributes)
-            {
-                if (string.Equals(attributeName, attribute.Key, StringComparison.OrdinalIgnoreCase))
-                {
-                    return attribute.Value;
-                }
-            }
-
-            return string.Empty;
+            return node.Attributes.FirstOrDefault(x => string.Equals(attributeName, x.Key, StringComparison.OrdinalIgnoreCase)).Value ?? string.Empty;
         }
 
         internal string ExtractStyleValue(string styleName)
         {
-            foreach (KeyValuePair<string, string> style in styles)
+            string styleValue = styles.FirstOrDefault(x => string.Equals(styleName, x.Key, StringComparison.OrdinalIgnoreCase)).Value;
+
+            if(!string.IsNullOrEmpty(styleValue))
             {
-                if (string.Equals(styleName, style.Key, StringComparison.OrdinalIgnoreCase))
-                {
-                    return style.Value;
-                }
+                return styleValue;
             }
 
-            foreach (KeyValuePair<string, string> style in extentedStyles)
+            styleValue = extentedStyles.FirstOrDefault(x => string.Equals(styleName, x.Key, StringComparison.OrdinalIgnoreCase)).Value;
+
+            if (!string.IsNullOrEmpty(styleValue))
             {
-                if (string.Equals(styleName, style.Key, StringComparison.OrdinalIgnoreCase))
-                {
-                    return style.Value;
-                }
+                return styleValue;
             }
 
-            foreach (KeyValuePair<string, string> style in inheritedStyles)
+            styleValue = inheritedStyles.FirstOrDefault(x => string.Equals(styleName, x.Key, StringComparison.OrdinalIgnoreCase)).Value;
+
+            if (!string.IsNullOrEmpty(styleValue))
             {
-                if (string.Equals(styleName, style.Key, StringComparison.OrdinalIgnoreCase))
-                {
-                    return style.Value;
-                }
+                return styleValue;
             }
 
             return string.Empty;
@@ -196,33 +174,23 @@
 
         internal string ExtractOwnStyleValue(string styleName)
         {
-            foreach (KeyValuePair<string, string> style in styles)
-            {
-                if (string.Equals(styleName, style.Key, StringComparison.OrdinalIgnoreCase))
-                {
-                    return style.Value;
-                }
-            }
-
-            return string.Empty;
+            return styles.FirstOrDefault(x => string.Equals(styleName, x.Key, StringComparison.OrdinalIgnoreCase)).Value ?? string.Empty;
         }
 
         internal string ExtractInheritedStyleValue(string styleName)
         {
-            foreach (KeyValuePair<string, string> style in extentedStyles)
+            string styleValue = extentedStyles.FirstOrDefault(x => string.Equals(styleName, x.Key, StringComparison.OrdinalIgnoreCase)).Value;
+
+            if (!string.IsNullOrEmpty(styleValue))
             {
-                if (string.Equals(styleName, style.Key, StringComparison.OrdinalIgnoreCase))
-                {
-                    return style.Value;
-                }
+                return styleValue;
             }
 
-            foreach (KeyValuePair<string, string> style in inheritedStyles)
+            styleValue = inheritedStyles.FirstOrDefault(x => string.Equals(styleName, x.Key, StringComparison.OrdinalIgnoreCase)).Value;
+
+            if (!string.IsNullOrEmpty(styleValue))
             {
-                if (string.Equals(styleName, style.Key, StringComparison.OrdinalIgnoreCase))
-                {
-                    return style.Value;
-                }
+                return styleValue;
             }
 
             return string.Empty;
@@ -257,6 +225,11 @@
             {
                 inheritedStyles.Remove(styleName);
             }
+        }
+
+        internal DocxNode Clone()
+        {
+            return new DocxNode(node?.Clone());
         }
     }
 }

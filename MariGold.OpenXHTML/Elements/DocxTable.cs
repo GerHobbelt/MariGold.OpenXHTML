@@ -1,9 +1,10 @@
 ﻿namespace MariGold.OpenXHTML
 {
-    using System;
-    using System.Collections.Generic;
     using DocumentFormat.OpenXml;
     using DocumentFormat.OpenXml.Wordprocessing;
+    using MariGold.OpenXHTML.Styles;
+    using System;
+    using System.Collections.Generic;
     using System.Linq;
 
     internal sealed class DocxTable : DocxElement
@@ -26,7 +27,7 @@
             string rowSpan = td.ExtractAttributeValue(DocxTableProperties.rowSpan);
             if (int.TryParse(rowSpan, out int rowSpanValue))
             {
-                tableProperties.RowSpanInfo[colIndex] = rowSpanValue - 1;
+                tableProperties.UpdateRowSpan(colIndex, rowSpanValue - 1, td);
                 hasRowSpan = true;
             }
 
@@ -50,6 +51,7 @@
                 foreach (DocxNode child in td.Children)
                 {
                     td.CopyExtentedStyles(child);
+                    td.ApplyBlockStyles(child);
 
                     if (child.IsText)
                     {
@@ -58,23 +60,24 @@
                             if (para == null)
                             {
                                 para = cell.AppendChild(new Paragraph());
-                                OnParagraphCreated(DocxTableCellStyle.GetHtmlNodeForTableCellContent(td), para);
+                                OnParagraphCreated(DocxTableCellStyle.GetHtmlNodeForTableCellContent(td.Clone()), para);
                             }
 
-                            Run run = para.AppendChild(new Run(new Text()
+                            Run run = para.AppendChild(new Run(new[] { new Text()
                             {
                                 Text = ClearHtml(child.InnerHtml),
                                 Space = SpaceProcessingModeValues.Preserve
-                            }));
+                            }}));
 
                             RunCreated(child, run);
                         }
                     }
                     else
                     {
-                        child.ParagraphNode = DocxTableCellStyle.GetHtmlNodeForTableCellContent(td);
+                        child.ParagraphNode = DocxTableCellStyle.GetHtmlNodeForTableCellContent(td.Clone());
                         child.Parent = cell;
                         td.CopyExtentedStyles(child);
+                        td.ApplyBlockStyles(child);
                         ProcessChild(child, ref para, properties);
                     }
                 }
@@ -83,34 +86,37 @@
             //The last element of the table cell must be a paragraph.
             var lastElement = cell.Elements().LastOrDefault();
 
-            if (lastElement == null || !(lastElement is Paragraph))
+            if (!(lastElement is Paragraph))
             {
                 cell.AppendChild(new Paragraph());
             }
 
-            row.Append(cell);
+            row.Append(new[] { cell });
         }
 
         private void ProcessVerticalSpan(ref int colIndex, TableRow row, DocxTableProperties docxProperties)
         {
-            docxProperties.RowSpanInfo.TryGetValue(colIndex, out int rowSpan);
+            var hasRowSpan = docxProperties.TryGetRowSpan(colIndex, out int rowSpan, out DocxNode node);
 
-            while (rowSpan > 0)
+            while (hasRowSpan)
             {
+                DocxTableCellStyle style = new DocxTableCellStyle();
                 TableCell cell = new TableCell
                 {
                     TableCellProperties = new TableCellProperties()
                 };
 
-                cell.TableCellProperties.Append(new VerticalMerge());
+                cell.TableCellProperties.Append(new[] { new VerticalMerge { Val = MergedCellValues.Continue } } );
+
+                style.Process(cell, docxProperties, node);
 
                 cell.AppendChild(new Paragraph());
 
-                row.Append(cell);
+                row.Append(new[] { cell } );
 
-                docxProperties.RowSpanInfo[colIndex] = --rowSpan;
+                docxProperties.UpdateRowSpan(colIndex, rowSpan - 1, node);
                 ++colIndex;
-                docxProperties.RowSpanInfo.TryGetValue(colIndex, out rowSpan);
+                hasRowSpan = docxProperties.TryGetRowSpan(colIndex, out rowSpan, out node);
             }
         }
 
@@ -127,26 +133,26 @@
 
                 foreach (DocxNode td in tr.Children)
                 {
-                    ProcessVerticalSpan(ref colIndex, row, tableProperties);
-
                     tableProperties.IsCellHeader = string.Compare(td.Tag, DocxTableProperties.thName, StringComparison.InvariantCultureIgnoreCase) == 0;
 
                     if (string.Compare(td.Tag, DocxTableProperties.tdName, StringComparison.InvariantCultureIgnoreCase) == 0 || tableProperties.IsCellHeader)
                     {
+                        ProcessVerticalSpan(ref colIndex, row, tableProperties);
+
                         tr.CopyExtentedStyles(td);
                         ProcessTd(colIndex++, td, row, tableProperties, properties);
                     }
                 }
 
-                if (colIndex < tableProperties.RowSpanInfo.Count)
+                if (colIndex < tableProperties.GetRowSpanCount())
                 {
                     ProcessVerticalSpan(ref colIndex, row, tableProperties);
                 }
 
-                table.Append(row);
+                table.Append(new[] { row } );
             }
         }
-        
+
         private void ProcessGroupElement(DocxNode tbody, Table table, DocxTableProperties tableProperties, Dictionary<string, object> properties)
         {
             foreach (DocxNode tr in tbody.Children)
@@ -200,7 +206,7 @@
                     }
                 }
 
-                node.Parent.Append(table);
+                node.Parent.Append(new[] { table } );
             }
         }
     }
