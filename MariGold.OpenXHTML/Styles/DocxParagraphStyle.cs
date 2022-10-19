@@ -1,5 +1,6 @@
 ﻿namespace MariGold.OpenXHTML
 {
+	using DocumentFormat.OpenXml.Wordprocessing;
 	using System;
 
 	internal sealed class DocxParagraphStyle

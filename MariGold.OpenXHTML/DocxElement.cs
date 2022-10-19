@@ -1,5 +1,8 @@
 ﻿namespace MariGold.OpenXHTML
 {
+    using DocumentFormat.OpenXml;
+    using DocumentFormat.OpenXml.Wordprocessing;
+    using MariGold.OpenXHTML.Styles;
     using System;
     using System.Collections.Generic;
     using System.IO;

@@ -1,5 +1,5 @@
 ## MariGold.OpenXHTML.RtL
-Based on [MariaGold.OpenXHTML v2.7.0](https://www.nuget.org/packages/MariGold.OpenXHTML/2.7.0).
+Based on [MariaGold.OpenXHTML v3.0.0](https://www.nuget.org/packages/MariGold.OpenXHTML/3.0.0).
 
 ## MariGold.OpenXHTML
 OpenXHTML is a wrapper library for Open XML SDK to convert HTML documents into Open XML word documents. It has simply encapsulated the complexity of Open XML yet exposes the properties of Open XML for manipulation.

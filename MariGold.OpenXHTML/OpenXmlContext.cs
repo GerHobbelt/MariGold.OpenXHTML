@@ -1,8 +1,8 @@
 ﻿namespace MariGold.OpenXHTML
 {
-    using System;
     using DocumentFormat.OpenXml.Packaging;
     using DocumentFormat.OpenXml.Wordprocessing;
+    using System;
     using System.Collections.Generic;
 
     internal sealed class OpenXmlContext : IOpenXmlContext
@@ -104,7 +104,7 @@
                 _ = mainPart.AddNewPart<StyleDefinitionsPart>("styleDefinitionsPart");
             }
 
-            var styles = new Styles();
+            var styles = new DocumentFormat.OpenXml.Wordprocessing.Styles();
 
             // Hyperlink
             var hyperlink = new Style { StyleId = "Hyperlink", Type = StyleValues.Character };
